@@ -73,11 +73,32 @@ class Observer:
 
         if observation_message.message_type == MessageTypeEnum.INITIAL_CONNECTION_PING.value:
             print(f"Observer {observation_message.observer} requested initial ping.")
-
             self.send_data(
                 message_type=MessageTypeEnum.INITIAL_CONNECTION_PONG.value,
                 message_data=f"initial_connection initialized with {self.observation.observer}",
             )
+
         elif observation_message.message_type == MessageTypeEnum.INITIAL_CONNECTION_PONG.value:
             print(f"Observer {observation_message.observer} responded to the initial ping.")
+            self.observation.target = observation_message.observer
+            self.event_loop.create_task(self.health_check())
 
+        elif observation_message.message_type == MessageTypeEnum.HEALTH_CHECK_PING.value:
+            print(f"Observer {observation_message.observer} sent health check ping")
+            self.send_data(
+                message_type=MessageTypeEnum.HEALTH_CHECK_PONG.value,
+                message_data="health check pong sent to {self.observation.observer}",
+            )
+
+        elif observation_message.message_type == MessageTypeEnum.HEALTH_CHECK_PONG.value:
+            print(f"Target {self.observation.target} is healthy")
+            self.observation.is_healthy = True
+            self.event_loop.create_task(self.health_check())
+
+    async def health_check(self):
+        print(f"Sending health check to the {self.observation.target}")
+        await asyncio.sleep(settings.HEALTH_CHECK_PAUSE)
+        self.send_data(
+            message_type=MessageTypeEnum.HEALTH_CHECK_PING.value,
+            message_data=f"health check ping for {self.observation.target}",
+        )

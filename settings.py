@@ -12,3 +12,6 @@ try:
 except Exception:
     OBSERVER_ADDRESS = os.environ['OBSERVER_ADDRESS_HOST'], int(os.environ['OBSERVER_ADDRESS_PORT'])
     TARGET_ADDRESS = os.environ['TARGET_ADDRESS_HOST'], int(os.environ["TARGET_ADDRESS_PORT"])
+
+
+HEALTH_CHECK_PAUSE = env.int('HEALTH_CHECK_PAUSE')

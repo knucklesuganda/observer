@@ -10,7 +10,8 @@ from logic.data_structures.typings import IP_ADDRESS
 class MessageTypeEnum(Enum):
     INITIAL_CONNECTION_PING = "initial_connection_ping"
     INITIAL_CONNECTION_PONG = "initial_connection_pong"
-    HEALTH_CHECK = "health_check"
+    HEALTH_CHECK_PING = "health_check_ping"
+    HEALTH_CHECK_PONG = "health_check_pong"
 
 
 class ObservationMessage(BaseModel):
