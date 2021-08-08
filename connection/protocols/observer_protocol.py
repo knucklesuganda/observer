@@ -1,35 +1,28 @@
 from asyncio import transports
-from typing import Tuple, Text, Union, Iterable
 
 from connection.protocols.base_protocol import BaseProtocol
+from logic.data_structures.typings import IP_ADDRESS
 
 
 class ObserverProtocol(BaseProtocol):
-    def __init__(self, my_address, observer_addresses: Iterable):
-        self.my_address = my_address
-        self.observer_addresses = list(observer_addresses)
+    def __init__(
+        self,
+        connection_made_callback: callable,
+        data_received_callback: callable,
+        observer_address: IP_ADDRESS,
+        target_address: IP_ADDRESS,
+    ):
+        super(ObserverProtocol, self).__init__()
+        self.connection_made_callback = connection_made_callback
+        self.data_received_callback = data_received_callback
 
-        print(f"Working on {self.my_address} address")
-        print(f"Known observers: {self.observer_addresses}")
-
-    def datagram_received(self, data: Union[bytes, Text], addr: Tuple[str, int]):
-        data, addr = super(ObserverProtocol, self).datagram_received(data=data, addr=addr)
-
-        if data['type'] == 'connection_made':
-            if data['observer_address'] != self.my_address:
-                self.observer_addresses.append(self.observer_addresses)
-                print("New observer was added to the known list")
-
-        print(addr, ":", data)
+        self.observer_address = observer_address
+        self.target_address = target_address
 
     def connection_made(self, transport: transports.BaseTransport) -> None:
-        for observer in self.observer_addresses:
-            self.data_write(
-                transport=transport,
-                data={
-                    "type": "connection_made",
-                    "my_address": self.my_address,
-                    "observer_address": transport.get_extra_info('address'),
-                },
-                address=observer
-            )
+        super(ObserverProtocol, self).connection_made(transport=transport)
+        return self.connection_made_callback(transport=transport)
+
+    def datagram_received(self, data, addr):
+        data, addr = super(ObserverProtocol, self).datagram_received(data=data, addr=addr)
+        return self.data_received_callback(data=data, address=addr)

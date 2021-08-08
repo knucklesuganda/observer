@@ -1,9 +1,14 @@
+import os
+
 import environs
 
 
 env = environs.Env()
 env.read_env('.env')
 
-
-INITIAL_OBSERVER = env('INITIAL_OBSERVER_HOST'), env.int('INITIAL_OBSERVER_PORT')
-MY_ADDRESS = env('MY_ADDRESS_HOST'), env.int("MY_ADDRESS_PORT")
+try:
+    OBSERVER_ADDRESS = env('OBSERVER_ADDRESS_HOST'), env.int('OBSERVER_ADDRESS_PORT')
+    TARGET_ADDRESS = env('TARGET_ADDRESS_HOST'), env.int("TARGET_ADDRESS_PORT")
+except Exception:
+    OBSERVER_ADDRESS = os.environ['OBSERVER_ADDRESS_HOST'], int(os.environ['OBSERVER_ADDRESS_PORT'])
+    TARGET_ADDRESS = os.environ['TARGET_ADDRESS_HOST'], int(os.environ["TARGET_ADDRESS_PORT"])
